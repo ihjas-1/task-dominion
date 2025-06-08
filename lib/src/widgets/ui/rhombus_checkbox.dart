@@ -32,26 +32,26 @@ class RhombusCheckbox extends StatelessWidget {
     final gameProvider = Provider.of<GameProvider>(context, listen: false);
 
     Color bgColor = checked
-        ? (gameProvider.getSelectedTask()?.taskColor ??
-            AppTheme.fhAccentTealFixed)
-        : AppTheme.fhBgMedium;
+        ? (gameProvider.getSelectedProject()?.color ??
+            AppTheme.fortniteBlue)
+        : AppTheme.fnBgMedium;
     Color borderColor = disabled
         ? (checked
-            ? (gameProvider.getSelectedTask()?.taskColor ??
-                    AppTheme.fhAccentTealFixed)
-                .withOpacity(0.5)
-            : AppTheme.fhBorderColor.withOpacity(0.5))
+            ? (gameProvider.getSelectedProject()?.color ??
+                    AppTheme.fortniteBlue)
+                .withAlpha((255 * 0.5).round())
+            : AppTheme.fnBorderColor.withAlpha((255 * 0.5).round()))
         : (checked
-            ? (gameProvider.getSelectedTask()?.taskColor ??
-                AppTheme.fhAccentTealFixed)
-            : AppTheme.fhBorderColor);
+            ? (gameProvider.getSelectedProject()?.color ??
+                AppTheme.fortniteBlue)
+            : AppTheme.fnBorderColor);
 
     if (disabled && checked) {
-      bgColor = (gameProvider.getSelectedTask()?.taskColor ??
-              AppTheme.fhAccentTealFixed)
-          .withOpacity(0.6);
+      bgColor = (gameProvider.getSelectedProject()?.color ??
+              AppTheme.fortniteBlue)
+          .withAlpha((255 * 0.6).round());
     } else if (disabled && !checked) {
-      bgColor = AppTheme.fhBgLight.withOpacity(0.4);
+      bgColor = AppTheme.fnBgLight.withAlpha((255 * 0.4).round());
     }
 
     return InkWell(
@@ -77,8 +77,6 @@ class RhombusCheckbox extends StatelessWidget {
                     color: borderColor,
                     width: 1.5, // Slightly thicker border
                   ),
-                  // No boxShadow for flatter screenshot-like style
-                  // borderRadius: BorderRadius.circular(2), // Optional: slight rounding of corners
                 ),
               ),
             ),
@@ -87,8 +85,8 @@ class RhombusCheckbox extends StatelessWidget {
                 MdiIcons.checkBold, // Using MDI check for a bolder look
                 size: iconSize,
                 color: disabled
-                    ? AppTheme.fhTextSecondary.withOpacity(0.7)
-                    : AppTheme.fhBgDark, // Dark check on light teal
+                    ? AppTheme.fnTextSecondary.withAlpha((255 * 0.7).round())
+                    : AppTheme.fnBgDark, // Dark check on light teal
               ),
           ],
         ),

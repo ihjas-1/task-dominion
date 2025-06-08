@@ -1,242 +1,236 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Valorant-inspired color palette (BASE colors)
-  static const Color fhBgDeepDark = Color(0xFF0F1923); 
-  static const Color fhBgDark = Color(0xFF1A2838); 
-  static const Color fhBgMedium = Color(0xFF203040); 
-  static const Color fhBgLight = Color(0xFF2C3E50); 
-  static const Color fhBorderColor = Color(0xFF384B5F); 
+  // Fortnite-inspired color palette
+  static const Color fnBgDark = Color(0xFF1A1A1A);
+  static const Color fnBgMedium = Color(0xFF2A2A2A);
+  static const Color fnBgLight = Color(0xFF3C3C3C);
+  static const Color fnBorderColor = Color(0xFF4A4A4A);
 
-  static const Color fhTextPrimary = Color(0xFFEAEAEA); 
-  static const Color fhTextSecondary = Color(0xFFB0B8C0); 
-  static const Color fhTextDisabled = Color(0xFF707880);
+  static const Color fnTextPrimary = Color(0xFFFFFFFF);
+  static const Color fnTextSecondary = Color(0xFFAAAAAA);
+  static const Color fnTextDisabled = Color(0xFF757575);
 
-  // Fixed accents (won't change with task theme)
-  static const Color fhAccentRed = Color(0xFFFD4556); // Valorant Red (e.g., for errors, critical actions)
-  static const Color fhAccentTealFixed = Color(0xFF00F8F8); 
-  static const Color fhAccentTeal = Color(0xFF00F8F8); // Default system teal (can be used if no task color)
-  static const Color fhAccentGold = Color(0xFFFFE075); 
-  static const Color fhAccentPurple = Color(0xFF8A2BE2); 
-  static const Color fhAccentGreen = Color(0xFF4CAF50); 
-  static const Color fhAccentOrange = Color(0xFFFF7043); 
+  // Accent colors
+  static const Color fortniteBlue = Color(0xFF00BFFF);
+  static const Color fortnitePurple = Color(0xFF8A2BE2);
+  static const Color fnAccentRed = Color(0xFFE53935);
+  static const Color fnAccentGreen = Color(0xFF4CAF50);
+  static const Color fnAccentOrange = Color(0xFFFF9800);
 
-  static const String fontDisplay = 'RobotoCondensed'; 
-  static const String fontBody = 'OpenSans';
+  // Font families
+  static const String fontDisplay = 'BurbankBigCondensed';
+  static const String fontBody = 'Lato';
 
-  
-  // Method to generate ThemeData with a dynamic primary accent color
   static ThemeData getThemeData({required Color primaryAccent}) {
-    final Brightness accentBrightness = ThemeData.estimateBrightnessForColor(primaryAccent);
-    final Color onPrimaryAccent = accentBrightness == Brightness.dark ? fhTextPrimary : fhBgDark;
+    final Brightness accentBrightness =
+        ThemeData.estimateBrightnessForColor(primaryAccent);
+    final Color onPrimaryAccent =
+        accentBrightness == Brightness.dark ? fnTextPrimary : fnBgDark;
 
     return ThemeData(
       brightness: Brightness.dark,
-      primaryColor: primaryAccent, // Dynamic primary accent
-      scaffoldBackgroundColor: fhBgDeepDark,
+      primaryColor: primaryAccent,
+      scaffoldBackgroundColor: fnBgDark,
 
       colorScheme: ColorScheme.dark(
-        primary: primaryAccent, // Dynamic primary accent
-        secondary: primaryAccent, // Also use dynamic accent for secondary for consistency
-        surface: fhBgDark, 
-        error: fhAccentRed,
-        onPrimary: onPrimaryAccent, // Text on dynamic primary accent
-        onSecondary: onPrimaryAccent, // Text on dynamic secondary accent
-        onSurface: fhTextPrimary, 
-        onError: fhTextPrimary,
+        primary: primaryAccent,
+        secondary: primaryAccent,
+        surface: fnBgMedium,
+        error: fnAccentRed,
+        onPrimary: onPrimaryAccent,
+        onSecondary: onPrimaryAccent,
+        onSurface: fnTextPrimary,
+        onError: fnTextPrimary,
       ),
 
       fontFamily: fontBody,
 
       appBarTheme: AppBarTheme(
-        backgroundColor: fhBgDark, 
-        elevation: 0, 
+        backgroundColor: fnBgMedium,
+        elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: fhTextSecondary, size: 22),
+        iconTheme: const IconThemeData(color: fnTextSecondary, size: 22),
         titleTextStyle: TextStyle(
           fontFamily: fontDisplay,
-          color: fhTextPrimary,
+          color: fnTextPrimary,
           fontWeight: FontWeight.bold,
-          fontSize: 20, 
-          letterSpacing: 1.1,
+          fontSize: 22,
+          letterSpacing: 1.2,
         ),
       ),
 
       textTheme: TextTheme(
-        displayLarge: TextStyle(fontFamily: fontDisplay, color: fhTextPrimary, fontWeight: FontWeight.bold, fontSize: 48, letterSpacing: 1.2),
-        displayMedium: TextStyle(fontFamily: fontDisplay, color: fhTextPrimary, fontWeight: FontWeight.bold, fontSize: 36, letterSpacing: 1.1),
-        displaySmall: TextStyle(fontFamily: fontDisplay, color: fhTextPrimary, fontWeight: FontWeight.w600, fontSize: 28),
-        headlineLarge: TextStyle(fontFamily: fontDisplay, color: fhTextPrimary, fontWeight: FontWeight.bold, fontSize: 22),
-        headlineMedium: TextStyle(fontFamily: fontDisplay, color: fhTextPrimary, fontWeight: FontWeight.w600, fontSize: 20),
-        headlineSmall: TextStyle(fontFamily: fontDisplay, color: fhTextPrimary, fontWeight: FontWeight.w500, fontSize: 18),
-        titleLarge: TextStyle(fontFamily: fontBody, color: fhTextPrimary, fontWeight: FontWeight.bold, fontSize: 16),
-        titleMedium: TextStyle(fontFamily: fontBody, color: fhTextPrimary, fontWeight: FontWeight.w500, fontSize: 14),
-        titleSmall: TextStyle(fontFamily: fontBody, color: fhTextSecondary, fontSize: 12, fontWeight: FontWeight.w400),
-        bodyLarge: TextStyle(fontFamily: fontBody, color: fhTextPrimary, fontSize: 15, height: 1.5),
-        bodyMedium: TextStyle(fontFamily: fontBody, color: fhTextSecondary, fontSize: 13, height: 1.4),
-        bodySmall: TextStyle(fontFamily: fontBody, color: fhTextSecondary, fontSize: 11, height: 1.3),
-        labelLarge: TextStyle(fontFamily: fontBody, color: onPrimaryAccent, fontWeight: FontWeight.bold, letterSpacing: 1, fontSize: 14), 
-        labelMedium: TextStyle(fontFamily: fontBody, color: fhTextSecondary, letterSpacing: 0.8, fontSize: 12),
-        labelSmall: TextStyle(fontFamily: fontBody, color: fhTextSecondary, letterSpacing: 0.5, fontSize: 10),
+        displayLarge: TextStyle(fontFamily: fontDisplay, color: fnTextPrimary, fontWeight: FontWeight.bold, fontSize: 52, letterSpacing: 1.2),
+        displayMedium: TextStyle(fontFamily: fontDisplay, color: fnTextPrimary, fontWeight: FontWeight.bold, fontSize: 40, letterSpacing: 1.1),
+        displaySmall: TextStyle(fontFamily: fontDisplay, color: fnTextPrimary, fontWeight: FontWeight.w600, fontSize: 32),
+        headlineLarge: TextStyle(fontFamily: fontDisplay, color: fnTextPrimary, fontWeight: FontWeight.bold, fontSize: 24),
+        headlineMedium: TextStyle(fontFamily: fontDisplay, color: fnTextPrimary, fontWeight: FontWeight.w600, fontSize: 22),
+        headlineSmall: TextStyle(fontFamily: fontDisplay, color: fnTextPrimary, fontWeight: FontWeight.w500, fontSize: 20),
+        titleLarge: TextStyle(fontFamily: fontBody, color: fnTextPrimary, fontWeight: FontWeight.bold, fontSize: 18),
+        titleMedium: TextStyle(fontFamily: fontBody, color: fnTextPrimary, fontWeight: FontWeight.w500, fontSize: 16),
+        titleSmall: TextStyle(fontFamily: fontBody, color: fnTextSecondary, fontSize: 14, fontWeight: FontWeight.w400),
+        bodyLarge: TextStyle(fontFamily: fontBody, color: fnTextPrimary, fontSize: 16, height: 1.5),
+        bodyMedium: TextStyle(fontFamily: fontBody, color: fnTextSecondary, fontSize: 14, height: 1.4),
+        bodySmall: TextStyle(fontFamily: fontBody, color: fnTextSecondary, fontSize: 12, height: 1.3),
+        labelLarge: TextStyle(fontFamily: fontBody, color: onPrimaryAccent, fontWeight: FontWeight.bold, letterSpacing: 1.2, fontSize: 16),
+        labelMedium: TextStyle(fontFamily: fontBody, color: fnTextSecondary, letterSpacing: 1.0, fontSize: 14),
+        labelSmall: TextStyle(fontFamily: fontBody, color: fnTextSecondary, letterSpacing: 0.8, fontSize: 12),
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryAccent, // Dynamic accent for buttons
+          backgroundColor: primaryAccent,
           foregroundColor: onPrimaryAccent,
-          textStyle: TextStyle(fontFamily: fontBody, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 0.8),
+          textStyle: TextStyle(fontFamily: fontDisplay, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1.0),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
-          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+          elevation: 4,
         ),
       ),
 
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          side: BorderSide(color: primaryAccent, width: 1.5), // Dynamic accent
-          foregroundColor: primaryAccent, // Dynamic accent
-          textStyle: TextStyle(fontFamily: fontBody, fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 0.8),
+          side: BorderSide(color: primaryAccent, width: 2),
+          foregroundColor: primaryAccent,
+          textStyle: TextStyle(fontFamily: fontDisplay, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 1.0),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
         ),
       ),
 
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: primaryAccent, // Dynamic accent
-          textStyle: TextStyle(fontFamily: fontBody, fontSize: 13, fontWeight: FontWeight.w600),
+          foregroundColor: primaryAccent,
+          textStyle: TextStyle(fontFamily: fontBody, fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: fhBgMedium.withOpacity(0.8),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintStyle: TextStyle(color: fhTextSecondary.withOpacity(0.7), fontFamily: fontBody, fontSize: 13),
-        labelStyle: TextStyle(color: fhTextSecondary, fontFamily: fontBody, fontSize: 14),
+        fillColor: fnBgLight.withOpacity(0.8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        hintStyle: TextStyle(color: fnTextSecondary.withOpacity(0.7), fontFamily: fontBody, fontSize: 14),
+        labelStyle: TextStyle(color: fnTextSecondary, fontFamily: fontBody, fontSize: 16),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4.0),
-          borderSide: const BorderSide(color: fhBorderColor, width: 1.0),
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: const BorderSide(color: fnBorderColor, width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4.0),
-          borderSide: const BorderSide(color: fhBorderColor, width: 1.0),
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: const BorderSide(color: fnBorderColor, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4.0),
-          borderSide: BorderSide(color: primaryAccent, width: 1.5), // Dynamic accent
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: BorderSide(color: primaryAccent, width: 2.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4.0),
-          borderSide: BorderSide(color: fhAccentRed.withOpacity(0.7), width: 1.0),
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: BorderSide(color: fnAccentRed.withOpacity(0.7), width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(4.0),
-          borderSide: const BorderSide(color: fhAccentRed, width: 1.5),
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: const BorderSide(color: fnAccentRed, width: 2.5),
         ),
-        prefixIconColor: fhTextSecondary,
-        suffixIconColor: fhTextSecondary,
+        prefixIconColor: fnTextSecondary,
+        suffixIconColor: fnTextSecondary,
       ),
 
       progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: primaryAccent, // Dynamic accent for progress
-        linearTrackColor: fhBgMedium,
-        circularTrackColor: fhBgMedium,
-        linearMinHeight: 5,
+        color: primaryAccent,
+        linearTrackColor: fnBgLight,
+        circularTrackColor: fnBgLight,
+        linearMinHeight: 6,
       ),
 
       chipTheme: ChipThemeData(
-        backgroundColor: fhBgMedium,
-        labelStyle: TextStyle(color: fhTextPrimary, fontFamily: fontBody, fontSize: 11),
-        selectedColor: primaryAccent, // Dynamic accent
-        secondarySelectedColor: primaryAccent.withOpacity(0.7), // Dynamic accent
-        disabledColor: fhBorderColor.withOpacity(0.5),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-        side: BorderSide(color: fhBorderColor.withOpacity(0.3)),
+        backgroundColor: fnBgLight,
+        labelStyle: TextStyle(color: fnTextPrimary, fontFamily: fontBody, fontSize: 12),
+        selectedColor: primaryAccent,
+        secondarySelectedColor: primaryAccent.withOpacity(0.7),
+        disabledColor: fnBorderColor.withOpacity(0.5),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        side: BorderSide(color: fnBorderColor.withOpacity(0.3)),
       ),
 
       tabBarTheme: TabBarThemeData(
-        labelColor: primaryAccent, // Dynamic accent
-        unselectedLabelColor: fhTextSecondary,
+        labelColor: primaryAccent,
+        unselectedLabelColor: fnTextSecondary,
         indicator: UnderlineTabIndicator(
-          borderSide: BorderSide(color: primaryAccent, width: 2.0), // Dynamic accent
+          borderSide: BorderSide(color: primaryAccent, width: 3.0),
         ),
-        labelStyle: TextStyle(fontFamily: fontDisplay, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 0.5),
-        unselectedLabelStyle: TextStyle(fontFamily: fontDisplay, fontWeight: FontWeight.w500, fontSize: 13, letterSpacing: 0.5),
+        labelStyle: TextStyle(fontFamily: fontDisplay, fontWeight: FontWeight.bold, fontSize: 16, letterSpacing: 0.8),
+        unselectedLabelStyle: TextStyle(fontFamily: fontDisplay, fontWeight: FontWeight.w500, fontSize: 16, letterSpacing: 0.8),
         indicatorSize: TabBarIndicatorSize.label,
       ),
 
       iconTheme: const IconThemeData(
-        color: fhTextSecondary,
-        size: 20,
+        color: fnTextSecondary,
+        size: 24,
       ),
 
       tooltipTheme: TooltipThemeData(
         preferBelow: false,
-        textStyle: TextStyle(fontSize: 11, color: fhBgDark, fontFamily: fontBody),
+        textStyle: TextStyle(fontSize: 12, color: fnBgDark, fontFamily: fontBody),
         decoration: BoxDecoration(
-          color: fhAccentGold.withOpacity(0.95),
-          borderRadius: BorderRadius.circular(4),
+          color: fortniteBlue.withOpacity(0.95),
+          borderRadius: BorderRadius.circular(8),
         ),
       ),
 
       dividerTheme: DividerThemeData(
-        color: fhBorderColor.withOpacity(0.5),
+        color: fnBorderColor.withOpacity(0.6),
         thickness: 1,
         space: 1,
       ),
 
       cardTheme: CardThemeData(
-        color: fhBgDark, 
-        elevation: 0, 
+        color: fnBgMedium,
+        elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(2.0), 
-          side: BorderSide(color: fhBorderColor.withOpacity(0.4), width: 1),
+          borderRadius: BorderRadius.circular(16.0),
+          side: BorderSide(color: fnBorderColor.withOpacity(0.5), width: 1),
         ),
-        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
       ),
 
       listTileTheme: ListTileThemeData(
-        iconColor: fhTextSecondary,
-        textColor: fhTextPrimary,
-        tileColor: Colors.transparent, 
-        selectedTileColor: primaryAccent.withOpacity(0.1), // Dynamic accent
-        titleTextStyle: TextStyle(fontFamily: fontBody, fontSize: 14, fontWeight: FontWeight.w500),
-        subtitleTextStyle: TextStyle(fontFamily: fontBody, fontSize: 12, color: fhTextSecondary),
-        minVerticalPadding: 12,
+        iconColor: fnTextSecondary,
+        textColor: fnTextPrimary,
+        tileColor: Colors.transparent,
+        selectedTileColor: primaryAccent.withOpacity(0.15),
+        titleTextStyle: TextStyle(fontFamily: fontBody, fontSize: 16, fontWeight: FontWeight.w600),
+        subtitleTextStyle: TextStyle(fontFamily: fontBody, fontSize: 14, color: fnTextSecondary),
+        minVerticalPadding: 14,
       ),
 
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
-          if (states.contains(WidgetState.selected)) {
-            return primaryAccent; // Dynamic accent
-          }
-          return fhTextSecondary.withOpacity(0.6);
+          if (states.contains(WidgetState.selected)) return primaryAccent;
+          return fnTextSecondary.withOpacity(0.8);
         }),
         trackColor: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
-          if (states.contains(WidgetState.selected)) {
-            return primaryAccent.withOpacity(0.3); // Dynamic accent
-          }
-          return fhBorderColor.withOpacity(0.3);
+          if (states.contains(WidgetState.selected)) return primaryAccent.withOpacity(0.4);
+          return fnBorderColor.withOpacity(0.4);
         }),
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
 
       dialogTheme: DialogThemeData(
-        backgroundColor: fhBgMedium,
-        titleTextStyle: TextStyle(fontFamily: fontDisplay, color: fhTextPrimary, fontSize: 20, fontWeight: FontWeight.w600),
-        contentTextStyle: TextStyle(fontFamily: fontBody, color: fhTextPrimary, fontSize: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
-        elevation: 5,
+        backgroundColor: fnBgMedium,
+        titleTextStyle: TextStyle(fontFamily: fontDisplay, color: fnTextPrimary, fontSize: 22, fontWeight: FontWeight.w600),
+        contentTextStyle: TextStyle(fontFamily: fontBody, color: fnTextPrimary, fontSize: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+        elevation: 6,
       ),
-      
+
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: fhBgDeepDark,
-          selectedItemColor: primaryAccent, // Dynamic Accent
-          unselectedItemColor: fhTextSecondary.withOpacity(0.8),
-          selectedLabelStyle: TextStyle(fontSize: 10, fontFamily: fontBody, fontWeight: FontWeight.bold, letterSpacing: 0.5),
-          unselectedLabelStyle: TextStyle(fontSize: 10, fontFamily: fontBody, letterSpacing: 0.5),
+          backgroundColor: fnBgMedium,
+          selectedItemColor: primaryAccent,
+          unselectedItemColor: fnTextSecondary.withOpacity(0.8),
+          selectedLabelStyle: TextStyle(fontSize: 12, fontFamily: fontDisplay, fontWeight: FontWeight.bold, letterSpacing: 0.8),
+          unselectedLabelStyle: TextStyle(fontSize: 12, fontFamily: fontDisplay, letterSpacing: 0.8),
           type: BottomNavigationBarType.fixed,
           elevation: 0,
       ),

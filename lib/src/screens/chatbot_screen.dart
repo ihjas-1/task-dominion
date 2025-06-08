@@ -22,14 +22,14 @@ class ChatbotScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Arcane Advisor'),
-        backgroundColor: AppTheme.fhBgMedium,
+        backgroundColor: AppTheme.fnBgMedium,
         // Use the dynamic accent color for the AppBar potentially
          flexibleSpace: Container( 
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
                 theme.colorScheme.secondary.withOpacity(0.3),
-                AppTheme.fhBgMedium,
+                AppTheme.fnBgMedium,
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,

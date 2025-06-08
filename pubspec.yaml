@@ -29,8 +29,10 @@ dependencies:
   intl: ^0.20.2 # For date formatting
   fl_chart: ^1.0.0 # For charts
   material_design_icons_flutter: ^7.0.7296 # For extra icons
-  collection: ^1.18.0 
+  collection: ^1.18.0
+  lucide_icons: ^0.257.0
   flutter_colorpicker: ^1.1.0 # For task color selection
+  awesome_notifications: ^0.10.1
 
 
 dev_dependencies:
@@ -70,20 +72,12 @@ flutter:
   #   - assets/images/valorant-bg-example.png # Example if adding a background image
 
   fonts:
-    - family: RobotoCondensed
+    - family: BurbankBigCondensed
       fonts:
-        - asset: assets/fonts/RobotoCondensed-Regular.ttf
-        - asset: assets/fonts/RobotoCondensed-Bold.ttf
+        - asset: assets/fonts/Lato-Bold.ttf
           weight: 700
-    - family: OpenSans
+    - family: Lato
       fonts:
-        - asset: assets/fonts/OpenSans-Regular.ttf
-        - asset: assets/fonts/OpenSans-SemiBold.ttf
-          weight: 600
-    # Note: For true Valorant fonts like "Tungsten" or "DIN Next LT Pro",
-    # you would need to acquire the font files (ensure licensing) and declare them here.
-    # Example:
-    # - family: Tungsten
-    #   fonts:
-    #     - asset: assets/fonts/Tungsten-Bold.ttf # (if you had this file)
-    #       weight: 700
+        - asset: assets/fonts/Lato-Regular.ttf
+        - asset: assets/fonts/Lato-Bold.ttf
+          weight: 700

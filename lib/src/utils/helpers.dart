@@ -1,8 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 String getTodayDateString() {
   return DateFormat('yyyy-MM-dd').format(DateTime.now());
 }
+
+String colorToHex(Color color) => color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase();
 
 String romanize(int num) {
   if (num.isNaN || num == 0) return "0";
@@ -42,6 +45,23 @@ double xpLevelMultiplierPow(double base, int exponent) {
     result *= base;
   }
   return result;
+}
+
+// Skill level calculation constants
+const double skillXpPerLevelBase = 100;
+const double skillLevelMultiplier = 1.15;
+
+double skillXpForLevel(int level) {
+  if (level <= 1) return 0;
+  double totalXp = 0;
+  for (int i = 1; i < level; i++) {
+    totalXp += (skillXpPerLevelBase * (xpLevelMultiplierPow(skillLevelMultiplier, i - 1))).floor();
+  }
+  return totalXp;
+}
+
+double skillXpToNext(int currentLevel) {
+  return (skillXpPerLevelBase * (xpLevelMultiplierPow(skillLevelMultiplier, currentLevel - 1))).floorToDouble();
 }
 
 String formatTime(double totalSeconds) {

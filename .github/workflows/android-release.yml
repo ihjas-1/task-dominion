@@ -1,0 +1,51 @@
+name: Flutter Android Release Build & Upload
+
+on:
+  push:
+
+permissions:
+  contents: write # Required to create/edit GitHub Releases and upload assets
+
+jobs:
+  build_apk_and_upload:
+    runs-on: ubuntu-latest # Use the latest Ubuntu runner
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4 # Checks out your repository code
+
+      - name: Set up Java
+        uses: actions/setup-java@v4 # Sets up Java Development Kit (JDK)
+        with:
+          distribution: 'temurin' # Recommended distribution for Java
+          java-version: '17'      # Flutter typically requires Java 17 or newer
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2 # Action to set up Flutter SDK
+        with:
+          flutter-version: '3.32' # Specify the Flutter version.
+                                  # Note: Verify if '3.32' is a valid Flutter release version.
+                                  # Flutter versions usually follow major.minor.patch (e.g., 3.19.6, 3.22.0).
+                                  # If not found, this step might fail or use a different version.
+          channel: 'stable'       # Use the stable Flutter channel
+
+      - name: Get Flutter Dependencies
+        run: flutter pub get # Fetches all the dependencies listed in pubspec.yaml
+
+      - name: Build Android Release APK
+        run: flutter build apk --release # Builds the Android application in release mode
+        # The output APK will typically be found at build/app/outputs/apk/release/app-release.apk
+
+      - name: Upload APK to GitHub Release
+        uses: softprops/action-gh-release@v1 # Action to create or update a GitHub Release
+        with:
+          files: build/app/outputs/apk/release/app-release.apk # Path to the generated APK file
+          tag_name: ${{ github.ref_name }} # Uses the branch name or tag name that triggered the workflow
+          name: Build ${{ github.ref_name }} - ${{ github.run_number }} # Sets the name of the GitHub Release
+          body: |
+            Automated build for branch `${{ github.ref_name }}`.
+            This release includes the Android APK.
+            Triggered by commit: ${{ github.sha }}
+          draft: false # Set to true if you want to create a draft release first
+          prerelease: false # Set to true if this is a pre-release version
+          token: ${{ secrets.GITHUB_TOKEN }} # GitHub automatically provides this token for authentication

@@ -25,7 +25,7 @@ DEFAULT_BINARY_EXTENSIONS = {
     # Flutter/Dart/Mobile specific
     '.aab', '.apk', '.ipa',                                   # App bundles
     '.jar', '.aar',                                           # Java/Android archives
-    '.dill', '.kernel',                                       # Dart compiled outputs
+    '.dill', '.kernel',  '.patch','.txt'                                     # Dart compiled outputs
 }
 # Additional patterns to always ignore, even if not in .gitignore
 # These are matched against relative paths from the root_dir

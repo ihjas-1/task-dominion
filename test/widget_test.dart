@@ -7,51 +7,40 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:arcane/src/app.dart'; // Changed import
-import 'package:provider/provider.dart'; // Added for GameProvider
-import 'package:arcane/src/providers/game_provider.dart'; // Added for GameProvider
-import 'package:firebase_core/firebase_core.dart'; // Added for Firebase
+import 'package:arcane/src/app.dart';
+import 'package:provider/provider.dart';
+import 'package:arcane/src/providers/game_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import './mock.dart'; // For Firebase mock
 
 void main() {
-  // Mock Firebase core setup
   setupFirebaseAuthMocks();
 
   setUpAll(() async {
     await Firebase.initializeApp();
   });
 
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('App builds and shows loading or login screen', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    // Wrap with ChangeNotifierProvider for GameProvider
     await tester.pumpWidget(
       ChangeNotifierProvider(
-        create: (context) => GameProvider(), // Provide a GameProvider instance
+        create: (context) => GameProvider(),
         child: const MyApp(),
       ),
     );
+    
+    // Wait for all async operations like Firebase init and auth state to settle.
+    await tester.pumpAndSettle();
 
-    // Due to the async nature of Firebase initialization and initial auth state loading,
-    // we might need to pump a few times or use pumpAndSettle.
-    // For this basic test, we'll assume the LoginScreen shows up first if no user.
-    // Or, if a user is mocked/logged in, it might go to HomeScreen.
-    // The original test looked for '0' and '1' which suggests a counter.
-    // This app structure is different. Let's verify something basic from LoginScreen or HomeScreen.
-
-    // If LoginScreen is expected (no user by default in GameProvider mock or fresh state)
-    await tester.pumpAndSettle(); // Wait for UI to stabilize
-
-    // Check if LoginScreen elements are present
-    // This is a placeholder. Actual test would depend on GameProvider's initial state.
-    // For now, let's assume we get to a state where a MaterialApp is built.
+    // The app should build a MaterialApp
     expect(find.byType(MaterialApp), findsOneWidget);
 
-    // The original test was for a counter app, this app is different.
-    // This test needs to be adapted to the new app's functionality.
-    // For now, a smoke test that the app builds is sufficient.
-    // Example: Verify "TASK DOMINION" text from LoginScreen or HeaderWidget appears.
-    // As GameProvider might show a loading spinner first, then LoginScreen.
-    // final loginTitle = find.text('TASK DOMINION');
-    // expect(loginTitle, findsOneWidget); // This might fail depending on initial loading state.
+    // Depending on the initial state of the mocked GameProvider,
+    // it will either show a loading indicator, the LoginScreen, or the HomeScreen.
+    // A robust test would mock the GameProvider's state.
+    // A simple smoke test can check for one of the possible outcomes.
+    // Let's assume the initial state leads to the LoginScreen.
+    expect(find.text('ARCANE'), findsOneWidget);
+    expect(find.text('Secure Login'), findsOneWidget);
   });
 }

@@ -24,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isHovering = false;
 
   @override
   void dispose() {
@@ -74,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: AppTheme.fhBgDark, // Use the new dark background
+      backgroundColor: AppTheme.fnBgDark, // Use the new dark background
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -83,176 +84,192 @@ class _LoginScreenState extends State<LoginScreen> {
               ConstrainedBox(
             constraints:
                 const BoxConstraints(maxWidth: 400), // Max width of 400 pixels
-            child: Card(
-              color: AppTheme.fhBgMedium, // Slightly lighter card background
-              elevation: 0, // Flatter design
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                side: const BorderSide(
-                    color: AppTheme.fhBorderColor, width: 1.5), // Themed border
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0, vertical: 32.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Icon(MdiIcons.shieldCrownOutline,
-                          size: 56,
-                          color: AppTheme.fhAccentTealFixed), // Themed Icon
-                      const SizedBox(height: 16),
-                      Text(
-                        'ARCANE',
-                        style: theme.textTheme.displaySmall?.copyWith(
-                          // Use displaySmall for prominent title
-                          color: AppTheme.fhAccentTealFixed,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _isLogin
-                            ? 'Secure Login'
-                            : 'Create Account', // Updated subtitle
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: AppTheme.fhTextSecondary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 32),
-                      if (!_isLogin)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: TextFormField(
-                            controller: _usernameController,
-                            decoration: InputDecoration(
-                              labelText: 'Username',
-                              prefixIcon: Icon(MdiIcons.accountOutline,
-                                  color: theme
-                                      .inputDecorationTheme.labelStyle?.color,
-                                  size: 20),
-                            ),
-                            style: const TextStyle(
-                                color: AppTheme.fhTextPrimary,
-                                fontFamily: AppTheme.fontBody),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Please enter a username.';
-                              }
-                              if (value.trim().length < 3) {
-                                return 'Username must be at least 3 characters.';
-                              }
-                              return null;
-                            },
-                            onSaved: (value) => _username = value!.trim(),
+            child: MouseRegion(
+              onEnter: (_) => setState(() => _isHovering = true),
+              onExit: (_) => setState(() => _isHovering = false),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                decoration: BoxDecoration(
+                  color: AppTheme.fnBgMedium, // Slightly lighter card background
+                  borderRadius: BorderRadius.circular(8.0),
+                  border: Border.all(
+                      color: _isHovering ? AppTheme.fortnitePurple : AppTheme.fnBorderColor,
+                      width: _isHovering ? 2.5 : 1.5), // Themed border
+                  boxShadow: _isHovering
+                      ? [
+                          BoxShadow(
+                            color: AppTheme.fortnitePurple.withOpacity(0.5),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                          )
+                        ]
+                      : [],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24.0, vertical: 32.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Icon(MdiIcons.shieldCrownOutline,
+                            size: 56,
+                            color: AppTheme.fortniteBlue), // Themed Icon
+                        const SizedBox(height: 16),
+                        Text(
+                          'ARCANE',
+                          style: theme.textTheme.displaySmall?.copyWith(
+                            // Use displaySmall for prominent title
+                            color: AppTheme.fortniteBlue,
+                            fontFamily: 'BurbankBigCondensed',
+                            fontWeight: FontWeight.bold
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Email Address',
-                          prefixIcon: Icon(MdiIcons.emailOutline,
-                              color:
-                                  theme.inputDecorationTheme.labelStyle?.color,
-                              size: 20),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        style: const TextStyle(
-                            color: AppTheme.fhTextPrimary,
-                            fontFamily: AppTheme.fontBody),
-                        validator: (value) {
-                          if (value == null ||
-                              value.isEmpty ||
-                              !value.contains('@')) {
-                            return 'Please enter a valid email.';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => _email = value!,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: Icon(MdiIcons.lockOutline,
-                              color:
-                                  theme.inputDecorationTheme.labelStyle?.color,
-                              size: 20),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? MdiIcons.eyeOutline
-                                  : MdiIcons.eyeOffOutline,
-                              color:
-                                  theme.inputDecorationTheme.labelStyle?.color,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
-                          ),
-                        ),
-                        obscureText: _obscurePassword,
-                        style: const TextStyle(
-                            color: AppTheme.fhTextPrimary,
-                            fontFamily: AppTheme.fontBody),
-                        validator: (value) {
-                          if (value == null ||
-                              value.isEmpty ||
-                              value.length < 6) {
-                            return 'Password must be at least 6 characters long.';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => _password = value!,
-                      ),
-                      if (_error.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16.0),
-                          child: Text(
-                            _error,
-                            style: const TextStyle(
-                                color: AppTheme.fhAccentRed,
-                                fontSize: 12,
-                                fontFamily: AppTheme.fontBody),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      const SizedBox(height: 32),
-                      if (_isLoading)
-                        const CircularProgressIndicator(
-                            color: AppTheme.fhAccentTealFixed)
-                      else
-                        ElevatedButton(
-                          onPressed: _submit,
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(double.infinity, 48),
-                          ),
-                          child: Text(_isLogin ? 'LOGIN' : 'SIGN UP'),
-                        ),
-                      const SizedBox(height: 20),
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            _isLogin = !_isLogin;
-                            _error = '';
-                            _formKey.currentState?.reset();
-                            _usernameController.clear();
-                            _emailController.clear();
-                            _passwordController.clear();
-                          });
-                        },
-                        child: Text(
+                        const SizedBox(height: 8),
+                        Text(
                           _isLogin
-                              ? 'Need an account? Sign Up'
-                              : 'Already have an account? Login',
+                              ? 'Secure Login'
+                              : 'Create Account', // Updated subtitle
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: AppTheme.fnTextSecondary,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 32),
+                        if (!_isLogin)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: TextFormField(
+                              controller: _usernameController,
+                              decoration: InputDecoration(
+                                labelText: 'Username',
+                                prefixIcon: Icon(MdiIcons.accountOutline,
+                                    color: theme
+                                        .inputDecorationTheme.labelStyle?.color,
+                                    size: 20),
+                              ),
+                              style: const TextStyle(
+                                  color: AppTheme.fnTextPrimary,
+                                  fontFamily: AppTheme.fontBody),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Please enter a username.';
+                                }
+                                if (value.trim().length < 3) {
+                                  return 'Username must be at least 3 characters.';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) => _username = value!.trim(),
+                            ),
+                          ),
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            labelText: 'Email Address',
+                            prefixIcon: Icon(MdiIcons.emailOutline,
+                                color:
+                                    theme.inputDecorationTheme.labelStyle?.color,
+                                size: 20),
+                          ),
+                          keyboardType: TextInputType.emailAddress,
+                          style: const TextStyle(
+                              color: AppTheme.fnTextPrimary,
+                              fontFamily: AppTheme.fontBody),
+                          validator: (value) {
+                            if (value == null ||
+                                value.isEmpty ||
+                                !value.contains('@')) {
+                              return 'Please enter a valid email.';
+                            }
+                            return null;
+                          },
+                          onSaved: (value) => _email = value!,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _passwordController,
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            prefixIcon: Icon(MdiIcons.lockOutline,
+                                color:
+                                    theme.inputDecorationTheme.labelStyle?.color,
+                                size: 20),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? MdiIcons.eyeOutline
+                                    : MdiIcons.eyeOffOutline,
+                                color:
+                                    theme.inputDecorationTheme.labelStyle?.color,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
+                          ),
+                          obscureText: _obscurePassword,
+                          style: const TextStyle(
+                              color: AppTheme.fnTextPrimary,
+                              fontFamily: AppTheme.fontBody),
+                          validator: (value) {
+                            if (value == null ||
+                                value.isEmpty ||
+                                value.length < 6) {
+                              return 'Password must be at least 6 characters long.';
+                            }
+                            return null;
+                          },
+                          onSaved: (value) => _password = value!,
+                        ),
+                        if (_error.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16.0),
+                            child: Text(
+                              _error,
+                              style: const TextStyle(
+                                  color: AppTheme.fnAccentRed,
+                                  fontSize: 12,
+                                  fontFamily: AppTheme.fontBody),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        const SizedBox(height: 32),
+                        if (_isLoading)
+                          const CircularProgressIndicator(
+                              color: AppTheme.fortniteBlue)
+                        else
+                          ElevatedButton(
+                            onPressed: _submit,
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 48),
+                            ),
+                            child: Text(_isLogin ? 'LOGIN' : 'SIGN UP'),
+                          ),
+                        const SizedBox(height: 20),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _isLogin = !_isLogin;
+                              _error = '';
+                              _formKey.currentState?.reset();
+                              _usernameController.clear();
+                              _emailController.clear();
+                              _passwordController.clear();
+                            });
+                          },
+                          child: Text(
+                            _isLogin
+                                ? 'Need an account? Sign Up'
+                                : 'Already have an account? Login',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

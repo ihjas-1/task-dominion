@@ -1,0 +1,611 @@
+
+--- START OF FILE lib/src/widgets/components/checkpoint_list.dart ---
+// lib/src/widgets/components/checkpoint_list.dart
+import 'package:arcane/src/models/game_models.dart';
+import 'package:arcane/src/providers/game_provider.dart';
+import 'package:arcane/src/theme/app_theme.dart';
+import 'package:arcane/src/widgets/ui/rhombus_checkbox.dart';
+import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:provider/provider.dart';
+
+class CheckpointList extends StatelessWidget {
+  final Project project;
+  final Task task;
+  final Map<String, TextEditingController> localCountControllers;
+
+  const CheckpointList({
+    super.key,
+    required this.project,
+    required this.task,
+    required this.localCountControllers,
+  });
+
+  void _handleCheckboxChange(BuildContext context, GameProvider gp,
+      Project project, Task parentTask, Checkpoint checkpoint) {
+    if (checkpoint.isCountable) {
+      final currentCount = int.tryParse(
+              localCountControllers[checkpoint.id]?.text ?? '0') ??
+          checkpoint.currentCount;
+      if (currentCount < checkpoint.targetCount) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Please complete the target count (${checkpoint.targetCount}) for this step before marking as done.'),
+              backgroundColor: AppTheme.fnAccentRed),
+        );
+        return;
+      }
+    }
+    gp.completeCheckpoint(project.id, parentTask.id, checkpoint.id);
+  }
+
+  void _handleCountBlur(BuildContext context, GameProvider gp, Project project,
+      Task parentTask, Checkpoint checkpoint) {
+    if (checkpoint.isCountable) {
+      final newCount = int.tryParse(
+              localCountControllers[checkpoint.id]?.text ?? '0') ??
+          checkpoint.currentCount;
+      if (newCount != checkpoint.currentCount) {
+        gp.updateCheckpoint(project.id, parentTask.id, checkpoint.id,
+            {'currentCount': newCount.clamp(0, checkpoint.targetCount)});
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final gameProvider = context.read<GameProvider>();
+    final completedCheckpoints =
+        task.checkpoints.where((cp) => cp.completed).length;
+    final totalCheckpoints = task.checkpoints.length;
+    final checkpointProgress = totalCheckpoints > 0
+        ? (completedCheckpoints / totalCheckpoints)
+        : 0.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text('Checkpoints:',
+                style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppTheme.fnTextSecondary.withAlpha((255 * 0.8).round()),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: SizedBox(
+                height: 4,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: LinearProgressIndicator(
+                    value: checkpointProgress,
+                    backgroundColor: AppTheme.fnBorderColor.withAlpha((255 * 0.3).round()),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                        AppTheme.fortnitePurple),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: task.checkpoints.length,
+            itemBuilder: (sctx, sIndex) {
+              final cp = task.checkpoints[sIndex];
+              final skillXpChips = cp.skillXp.entries.map((entry) {
+                final skillName = gameProvider.skills
+                    .firstWhere((s) => s.id == entry.key,
+                        orElse: () => Skill(id: '', name: entry.key))
+                    .name;
+                return Chip(
+                  label: Text(
+                      '+${entry.value.toStringAsFixed(1)} $skillName XP'),
+                  avatar: Icon(MdiIcons.starFourPointsOutline,
+                      size: 10, color: project.color),
+                  backgroundColor: project.color.withAlpha((255 * 0.1).round()),
+                  labelStyle: TextStyle(
+                      fontSize: 9, color: project.color.withAlpha((255 * 0.9).round())),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  visualDensity: VisualDensity.compact,
+                );
+              }).toList();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 4.0, left: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: RhombusCheckbox(
+                              checked: cp.completed,
+                              onChanged: cp.completed
+                                  ? null
+                                  : (bool? val) => _handleCheckboxChange(
+                                      context, gameProvider, project, task, cp),
+                              disabled: cp.completed,
+                              size: CheckboxSize.small,
+                            )),
+                        const SizedBox(width: 8),
+                        Expanded(
+                            child: Text(
+                                '${cp.name}${cp.isCountable && !cp.completed ? ' (${localCountControllers[cp.id]?.text ?? cp.currentCount}/${cp.targetCount})' : (cp.isCountable && cp.completed ? ' (${cp.currentCount}/${cp.targetCount})' : '')}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontSize: 11,
+                                  decoration: cp.completed
+                                      ? TextDecoration.lineThrough
+                                      : TextDecoration.none,
+                                  color: cp.completed
+                                      ? AppTheme.fnTextSecondary
+                                          .withAlpha((255 * 0.6).round())
+                                      : AppTheme.fnTextSecondary,
+                                ))),
+                        if (cp.isCountable && !cp.completed)
+                          SizedBox(
+                            width: 35,
+                            height: 22,
+                            child: TextField(
+                              controller: localCountControllers[cp.id],
+                              keyboardType: TextInputType.number,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                  fontSize: 10,
+                                  color: AppTheme.fnTextPrimary),
+                              decoration: const InputDecoration(
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 1),
+                                  border: InputBorder.none,
+                                  filled: false),
+                              onEditingComplete: () => _handleCountBlur(context,
+                                  gameProvider, project, task, cp),
+                              onTapOutside: (_) => _handleCountBlur(
+                                  context, gameProvider, project, task, cp),
+                            ),
+                          ),
+                        if (!cp.completed)
+                          IconButton(
+                              icon: Icon(MdiIcons.deleteOutline,
+                                  color: AppTheme.fnAccentRed.withAlpha((255 * 0.7).round()),
+                                  size: 16),
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              onPressed: () => gameProvider.deleteCheckpoint(
+                                  project.id, task.id, cp.id)),
+                      ],
+                    ),
+                    if (skillXpChips.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 28.0, top: 4),
+                        child: Wrap(
+                            spacing: 4, runSpacing: 4, children: skillXpChips),
+                      ),
+                    ]
+                  ],
+                ),
+              );
+            }),
+      ],
+    );
+  }
+}
+--- END OF FILE lib/src/widgets/components/checkpoint_list.dart ---
+
+--- START OF FILE lib/src/widgets/components/task_timer_row.dart ---
+// lib/src/widgets/components/task_timer_row.dart
+import 'package:arcane/src/models/game_models.dart';
+import 'package:arcane/src/providers/game_provider.dart';
+import 'package:arcane/src/theme/app_theme.dart';
+import 'package:arcane/src/utils/helpers.dart' as helper;
+import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:provider/provider.dart';
+
+class TaskTimerRow extends StatelessWidget {
+  final String subtaskId;
+  final String label;
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final ActiveTimerInfo? timerState;
+  final double displayTimeSeconds;
+  final bool isEditing;
+  final VoidCallback onPlayPause;
+  final VoidCallback onEditToggle;
+  final VoidCallback onBlur;
+
+  const TaskTimerRow({
+    super.key,
+    required this.subtaskId,
+    required this.label,
+    required this.controller,
+    required this.focusNode,
+    required this.timerState,
+    required this.displayTimeSeconds,
+    required this.isEditing,
+    required this.onPlayPause,
+    required this.onEditToggle,
+    required this.onBlur,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final gameProvider = context.read<GameProvider>();
+    final taskColor =
+        gameProvider.getSelectedProject()?.color ?? AppTheme.fortniteBlue;
+
+    return Row(
+      children: [
+        Flexible(
+          child: Row(
+            children: [
+              SizedBox(
+                width: 70,
+                child: Text(label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 12, color: AppTheme.fnTextSecondary)),
+              ),
+              SizedBox(
+                width: 45,
+                height: 28,
+                child: TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  readOnly: !isEditing,
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(fontSize: 12, color: AppTheme.fnTextPrimary),
+                  decoration: InputDecoration(
+                    contentPadding: isEditing
+                        ? const EdgeInsets.symmetric(vertical: 2)
+                        : EdgeInsets.zero,
+                    border: InputBorder.none,
+                    enabledBorder: isEditing
+                        ? OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            borderSide: BorderSide(
+                                color: theme.focusColor.withAlpha((255 * 0.5).round()),
+                                width: 1))
+                        : InputBorder.none,
+                    focusedBorder: isEditing
+                        ? OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            borderSide:
+                                BorderSide(color: theme.primaryColor, width: 1.5))
+                        : InputBorder.none,
+                    filled: true,
+                    fillColor: AppTheme.fnBgDark.withAlpha((255 * 0.4).round()),
+                  ),
+                  onEditingComplete: onBlur,
+                  onTapOutside: (_) => onBlur(),
+                ),
+              ),
+              IconButton(
+                icon: Icon(
+                  isEditing ? MdiIcons.check : MdiIcons.pencilOutline,
+                  color: isEditing
+                      ? AppTheme.fnAccentGreen
+                      : AppTheme.fnTextSecondary.withAlpha((255 * 0.7).round()),
+                  size: 18,
+                ),
+                onPressed: onEditToggle,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints(),
+              ),
+            ],
+          ),
+        ),
+        const Spacer(),
+        IconButton(
+          icon: Icon(
+            timerState?.isRunning ?? false
+                ? MdiIcons.pauseCircleOutline
+                : MdiIcons.playCircleOutline,
+            color: timerState?.isRunning ?? false
+                ? AppTheme.fnAccentOrange
+                : AppTheme.fnAccentGreen,
+            size: 24,
+          ),
+          onPressed: onPlayPause,
+          padding: EdgeInsets.zero,
+          visualDensity: VisualDensity.compact,
+        ),
+        const SizedBox(width: 4),
+        SizedBox(
+          width: 55,
+          child: Text(
+            helper.formatTime(displayTimeSeconds),
+            style: theme.textTheme.labelMedium?.copyWith(
+                fontFamily: AppTheme.fontBody,
+                color: taskColor,
+                fontWeight: FontWeight.w600),
+            textAlign: TextAlign.right,
+          ),
+        ),
+      ],
+    );
+  }
+}
+--- END OF FILE lib/src/widgets/components/task_timer_row.dart ---
+
+--- START OF FILE lib/src/widgets/components/xp_history_graph.dart ---
+// lib/src/widgets/components/xp_history_graph.dart
+import 'package:arcane/src/providers/game_provider.dart';
+import 'package:arcane/src/theme/app_theme.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+class XpHistoryGraph extends StatelessWidget {
+  final String selectedSkillId;
+  final Color skillColor;
+
+  const XpHistoryGraph({
+    super.key,
+    required this.selectedSkillId,
+    required this.skillColor,
+  });
+
+  List<FlSpot> _getChartData(GameProvider gameProvider) {
+    List<Map<String, dynamic>> xpEvents = [];
+    final now = DateTime.now();
+    final twentyFourHoursAgo = now.subtract(const Duration(hours: 24));
+
+    final todayStr = DateFormat('yyyy-MM-dd').format(now);
+    final yesterdayStr = DateFormat('yyyy-MM-dd').format(now.subtract(const Duration(days: 1)));
+
+    final relevantDates = [todayStr, yesterdayStr];
+
+    for (var dateStr in relevantDates) {
+      final dayData = gameProvider.completedByDay[dateStr];
+      if (dayData != null) {
+        final checkpoints = dayData['checkpointsCompleted'] as List<dynamic>? ?? [];
+        for (var cpLog in checkpoints) {
+          final logMap = cpLog as Map<String, dynamic>;
+          final timestamp = DateTime.tryParse(logMap['completionTimestamp'] as String? ?? '');
+          if (timestamp != null && timestamp.isAfter(twentyFourHoursAgo)) {
+            final double xpForSkill = (logMap['skillXp'] as Map<String, dynamic>?)?[selectedSkillId]?.toDouble() ?? 0.0;
+            if (xpForSkill > 0) {
+              xpEvents.add({'timestamp': timestamp, 'xp': xpForSkill});
+            }
+          }
+        }
+      }
+    }
+
+    if (xpEvents.isEmpty) {
+      return [];
+    }
+
+    xpEvents.sort((a, b) => (a['timestamp'] as DateTime).compareTo(b['timestamp'] as DateTime));
+
+    List<FlSpot> spots = [];
+    double cumulativeXp = 0;
+    for (var event in xpEvents) {
+      cumulativeXp += (event['xp'] as double);
+      double hoursAgo = now.difference(event['timestamp'] as DateTime).inMinutes / 60.0;
+      spots.add(FlSpot(24 - hoursAgo, cumulativeXp));
+    }
+
+    return spots;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final gameProvider = context.watch<GameProvider>();
+    final List<FlSpot> spots = _getChartData(gameProvider);
+    final theme = Theme.of(context);
+
+    if (spots.isEmpty) {
+      return Container(
+        height: 150,
+        padding: const EdgeInsets.all(16),
+        child: Center(
+          child: Text(
+            'No XP gained for this skill in the last 24 hours. Complete checkpoints to see progress!',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(color: AppTheme.fnTextSecondary, fontStyle: FontStyle.italic),
+          ),
+        ),
+      );
+    }
+    
+    double maxY = spots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
+    maxY = (maxY * 1.2).ceilToDouble();
+    if (maxY < 10) {
+      maxY = 10;
+    }
+
+    return SizedBox(
+      height: 150,
+      child: LineChart(
+        LineChartData(
+          minX: 0,
+          maxX: 24,
+          minY: 0,
+          maxY: maxY,
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: true,
+            horizontalInterval: (maxY / 4).clamp(1, 1000),
+            verticalInterval: 6,
+            getDrawingHorizontalLine: (value) => FlLine(color: AppTheme.fnBorderColor.withAlpha((255 * 0.1).round()), strokeWidth: 0.8),
+            getDrawingVerticalLine: (value) => FlLine(color: AppTheme.fnBorderColor.withAlpha((255 * 0.1).round()), strokeWidth: 0.8),
+          ),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: (maxY / 4).clamp(1, 1000),
+                reservedSize: 30,
+                getTitlesWidget: (value, meta) {
+                  return Text(value.toInt().toString(), style: const TextStyle(color: AppTheme.fnTextSecondary, fontSize: 10));
+                },
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                interval: 6,
+                getTitlesWidget: (value, meta) {
+                  String text;
+                  if (value == 0) {
+                    text = '24h ago';
+                  } else if (value == 24) {
+                    text = 'Now';
+                  } else {
+                    text = '${(24 - value).toInt()}h ago';
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(text, style: const TextStyle(color: AppTheme.fnTextSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
+                  );
+                },
+              ),
+            ),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
+          borderData: FlBorderData(show: true, border: Border.all(color: AppTheme.fnBorderColor.withAlpha((255 * 0.2).round()))),
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
+              isCurved: true,
+              color: skillColor,
+              barWidth: 3,
+              isStrokeCapRound: true,
+              dotData: const FlDotData(show: false),
+              belowBarData: BarAreaData(show: true, color: skillColor.withAlpha((255 * 0.2).round())),
+            ),
+          ],
+          lineTouchData: LineTouchData(
+            touchTooltipData: LineTouchTooltipData(
+              getTooltipColor: (touchedSpot) => AppTheme.fnBgMedium,
+              getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                 return touchedSpots.map((spot) {
+                  return LineTooltipItem(
+                    '+${spot.y.toStringAsFixed(1)} XP',
+                    TextStyle(color: skillColor, fontWeight: FontWeight.bold),
+                  );
+                }).toList();
+              }
+            )
+          )
+        ),
+      ),
+    );
+  }
+}
+--- END OF FILE lib/src/widgets/components/xp_history_graph.dart ---
+
+--- START OF FILE lib/src/widgets/ui/rhombus_checkbox.dart ---
+// lib/src/widgets/ui/rhombus_checkbox.dart
+import 'package:flutter/material.dart';
+import 'package:arcane/src/providers/game_provider.dart';
+import 'package:arcane/src/theme/app_theme.dart';
+import 'dart:math' as math;
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:provider/provider.dart';
+
+enum CheckboxSize { small, medium }
+
+class RhombusCheckbox extends StatelessWidget {
+  final bool checked;
+  final ValueChanged<bool?>? onChanged;
+  final bool disabled;
+  final CheckboxSize size;
+
+  const RhombusCheckbox({
+    super.key,
+    required this.checked,
+    required this.onChanged,
+    this.disabled = false,
+    this.size = CheckboxSize.medium,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final double dimension =
+        size == CheckboxSize.small ? 18.0 : 22.0; // Overall tap target
+    final double iconSize = size == CheckboxSize.small ? 12.0 : 14.0;
+    final double visualDimension =
+        size == CheckboxSize.small ? 15.0 : 18.0; // Visual size of rhombus
+    final gameProvider = Provider.of<GameProvider>(context, listen: false);
+
+    Color bgColor = checked
+        ? (gameProvider.getSelectedProject()?.color ??
+            AppTheme.fortniteBlue)
+        : AppTheme.fnBgMedium;
+    Color borderColor = disabled
+        ? (checked
+            ? (gameProvider.getSelectedProject()?.color ??
+                    AppTheme.fortniteBlue)
+                .withAlpha((255 * 0.5).round())
+            : AppTheme.fnBorderColor.withAlpha((255 * 0.5).round()))
+        : (checked
+            ? (gameProvider.getSelectedProject()?.color ??
+                AppTheme.fortniteBlue)
+            : AppTheme.fnBorderColor);
+
+    if (disabled && checked) {
+      bgColor = (gameProvider.getSelectedProject()?.color ??
+              AppTheme.fortniteBlue)
+          .withAlpha((255 * 0.6).round());
+    } else if (disabled && !checked) {
+      bgColor = AppTheme.fnBgLight.withAlpha((255 * 0.4).round());
+    }
+
+    return InkWell(
+      onTap: disabled ? null : () => onChanged?.call(!checked),
+      borderRadius: BorderRadius.circular(
+          dimension / 4), // Make tap effect slightly rounded
+      child: SizedBox(
+        width: dimension,
+        height: dimension,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Transform.rotate(
+              angle: math.pi / 4, // 45 degrees
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                height: visualDimension *
+                    0.9, // Make it slightly smaller than container for padding
+                width: visualDimension * 0.9,
+                decoration: BoxDecoration(
+                  color: bgColor,
+                  border: Border.all(
+                    color: borderColor,
+                    width: 1.5, // Slightly thicker border
+                  ),
+                ),
+              ),
+            ),
+            if (checked)
+              Icon(
+                MdiIcons.checkBold, // Using MDI check for a bolder look
+                size: iconSize,
+                color: disabled
+                    ? AppTheme.fnTextSecondary.withAlpha((255 * 0.7).round())
+                    : AppTheme.fnBgDark, // Dark check on light teal
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+--- END OF FILE lib/src/widgets/ui/rhombus_checkbox.dart ---

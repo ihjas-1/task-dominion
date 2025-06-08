@@ -1,3 +1,7 @@
 Make the following changes:
 
-Now, recreate project_snapshot.txt only for the files that are changed in the original format
+  * Make it possible to delete missions from settings and also on edit dialog
+  * Add a basic tutorial for first time user (based on isTotorialShown) to explain and understand all feaures
+  * For both floating action button, 
+
+After applying the changes recreate project_snapshot.txt only for new files and files with changes, each time improve modularity of prpgram by introducing new component files (only on modified or new files)
